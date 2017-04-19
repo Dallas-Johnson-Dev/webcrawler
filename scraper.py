@@ -14,7 +14,7 @@ class scraper(object):
 		self.request_handler = request_handler
 		self.data_parser = data_parser
 		self.url_queue = url_queue
-		self.found_email_addresses = []
+		self.found_urls = []
 	def request_site_data(self, url):
 		if url[0] == '/':
 			if not (self.top_level_domain + url) in self.url_queue.processed_urls:
@@ -42,22 +42,24 @@ class scraper(object):
 		return self.url_queue.get_next_spider_url()
 	def pull_email_links(self, raw_data):
 		return self.data_parser.pull_email_links(raw_data)
-	def add_to_found_emails(self, email_list):
-		if len(email_list) == 0:
+	def add_to_found_urls(self, url_list):
+		if len(url_list) == 0:
 			return
-		for x in email_list:
-			if not x in self.found_email_addresses:
-				self.found_email_addresses.append(x)
+		for x in url_list:
+			if not x in self.found_urls:
+				self.found_urls.append(x)
 	def crawl_target(self):
 		#how to crawl: request site data, parse all links, parse for email links and append them to self.found_email_addresses, pop from the spider and continue the process until no urls are left.
+		self.found_urls = []
 		data = self.request_site_data(self.target_url)
 		urls = self.parse_links(data)
-		self.add_to_found_emails(self.pull_email_links(data))
+		self.add_to_found_urls(urls)
 		self.recursive_spider_crawl(len(self.url_queue)) #begin the recursive scraping here.
+		return self.found_urls
 	def crawl_url(self, url, verbose = False):
 		data = self.request_site_data(url)
 		links = self.parse_links(data)
-		self.add_to_found_emails(self.pull_email_links(data))
+		self.add_to_found_urls(links)
 		if verbose:
 			print(links)
 			print(self.found_email_addresses)

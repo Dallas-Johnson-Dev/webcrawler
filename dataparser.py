@@ -12,6 +12,7 @@ class dataParser(object):
 	urls = []
 	email_links = []
 	def parse_links(self, raw_data, domain=""):
+		self.urls = []
 		anchor_list = re.findall(self.anchor_href_expression, str(raw_data))
 		for x in range(len(anchor_list)):
 			if anchor_list[x][0] == '/' and anchor_list[x] not in self.urls:
